@@ -1,7 +1,7 @@
-name: GameCI Template 🎮
+name: Build
 
 on:
-  push: { branches: [main] }
+  push: { branches: [master] }
   pull_request:
     paths-ignore:
       - '.github/**'
