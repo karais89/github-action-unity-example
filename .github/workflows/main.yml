@@ -3,51 +3,41 @@ name: Actions 😎
 on: [push, pull_request]
 
 jobs:
-  buildAndTestForSomePlatforms:
-    name: Build for ${{ matrix.targetPlatform }}
+  build:
+    name: Build my project ✨
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        unityVersion:
-          - 2018.4.28f1
-        targetPlatform:
-          - Android # Build an Android player.
-          - WebGL # WebGL.
     steps:
-      - uses: actions/checkout@v2
+      # Checkout
+      - name: Checkout repository
+        uses: actions/checkout@v2
         with:
-          fetch-depth: 0
           lfs: true
+
+      # Cache
       - uses: actions/cache@v2
         with:
-          path: ${{ matrix.projectPath }}/Library
-          key: Library-${{ matrix.projectPath }}-${{ matrix.targetPlatform }}-${{ hashFiles(matrix.projectPath) }}
+          path: Library
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
           restore-keys: |
-            Library-${{ matrix.projectPath }}-${{ matrix.targetPlatform }}-
-            Library-${{ matrix.projectPath }}-
             Library-
-      - uses: game-ci/unity-test-runner@v2
-        id: testRunner
+
+#      # Test
+#      - name: Run tests
+#        uses: game-ci/unity-test-runner@v2
+#        env:
+#          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+#        with:
+#          githubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      # Build
+      - name: Build project
+        uses: game-ci/unity-builder@v2
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
-          projectPath: ${{ matrix.projectPath }}
-          unityVersion: ${{ matrix.unityVersion }}
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/upload-artifact@v2
-        if: always()
-        with:
-          name: Test results (all modes)
-          path: ${{ steps.testRunner.outputs.artifactsPath }}
-      - uses: game-ci/unity-builder@v2
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-        with:
-#          projectPath: ${{ matrix.projectPath }}
-          unityVersion: ${{ matrix.unityVersion }}
-          targetPlatform: ${{ matrix.targetPlatform }}
-#          customParameters: '-myParameter myValue -myBoolean -ThirdParameter andItsValue'
+          targetPlatform: Android
+
+      # Output
       - uses: actions/upload-artifact@v2
         with:
           name: Build
