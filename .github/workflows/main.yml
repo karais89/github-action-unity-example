@@ -18,6 +18,7 @@ jobs:
           - 2019.2.11f1
         targetPlatform:
           - Android # Build an Android .apk.
+          - WebGL
           
     steps:
       ###########################
